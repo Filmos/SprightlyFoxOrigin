@@ -10,7 +10,7 @@
     "condition": {
         "type": "origins:fall_distance",
         "comparison": ">=",
-        "compare_to": 12
+        "compare_to": 10
     }
   },
   "medium_fall": {
@@ -28,7 +28,7 @@
           "effect": {
             "effect": "minecraft:slowness",
             "amplifier": 0,
-            "duration": 60
+            "duration": 100
           }
         }
       ]
@@ -36,7 +36,7 @@
     "condition": {
         "type": "origins:fall_distance",
         "comparison": ">=",
-        "compare_to": 36
+        "compare_to": 25
     }
   },
   "big_fall": {
@@ -54,7 +54,7 @@
           "effect": {
             "effect": "minecraft:slowness",
             "amplifier": 2,
-            "duration": 100
+            "duration": 200
           }
         }
       ]
@@ -62,7 +62,7 @@
     "condition": {
         "type": "origins:fall_distance",
         "comparison": ">=",
-        "compare_to": 120
+        "compare_to": 100
     }
   },
   "no_fall_damage": {

@@ -1,0 +1,96 @@
+〈defιaddιparι〈toSpaceιcalcι, {
+        "type": "origins:if_else",
+        "condition": {〈replaceι〈n〉ι〈n〉      ι〈varιpar_1〉〉  },
+        "if_action": {
+          "type": "origins:change_resource",
+          "resource": "sprightly_fox:sprightly_regeneration_speed",
+          "change": 〈varιpar_0〉
+        }
+      }〉
+〉
+
+〈runιaddι1ι
+    "type": "origins:food_level",
+    "comparison": ">=",
+    "compare_to": 10
+〉
+〈runιaddι1ι
+    "type": "origins:food_level",
+    "comparison": ">=",
+    "compare_to": 16
+〉
+〈runιaddι1ι
+    "type": "origins:status_effect",
+    "effect": "minecraft:speed",
+    "min_amplifier": 0
+〉
+〈runιaddι1ι
+    "type": "origins:status_effect",
+    "effect": "minecraft:speed",
+    "min_amplifier": 1
+〉
+〈runιaddι1ι
+    "type": "origins:status_effect",
+    "effect": "minecraft:speed",
+    "min_amplifier": 2
+〉
+〈runιaddι-1ι
+    "type": "origins:status_effect",
+    "effect": "minecraft:slowness",
+    "min_amplifier": 0
+〉
+〈runιaddι-1ι
+    "type": "origins:status_effect",
+    "effect": "minecraft:slowness",
+    "min_amplifier": 2
+〉
+〈runιaddι-1ι
+    "type": "origins:status_effect",
+    "effect": "minecraft:slowness",
+    "min_amplifier": 4
+〉
+
+〈toFileι../out/sprightly_fox/powers/sprightly_regeneration.jsonι{
+  "type":"origins:multiple",
+  "speed": {
+    "type": "origins:resource",
+    "min": 0,
+    "max": 7,
+    "start_value": 0,
+    "hud_render": {
+      "should_render": false
+  	}
+  },
+  "calculate": {
+    "type": "origins:action_over_time",
+    "interval": 20,
+    "entity_action": {
+      "type": "origins:and",
+      "actions": [{
+        "type": "origins:change_resource",
+        "resource": "sprightly_fox:sprightly_regeneration_speed",
+        "change": -100
+      }, {
+        "type": "origins:change_resource",
+        "resource": "sprightly_fox:sprightly_regeneration_speed",
+        "change": 2
+      }〈readSpaceιcalc〉]
+    }
+  },〈forιiι7ι
+  "regen_stage_〈varιiι+1〉": {
+    "type": "origins:action_over_time",
+    "interval": 〈indexι〈varιi〉ι15ι9ι6ι3ι2ι1ι1〉,
+    "entity_action": {
+      "type": "origins:change_resource",
+      "resource": "sprightly_fox:sprightly",
+      "change": 〈ifι〈varιi〉==6ι2ι1〉
+    },
+    "condition": {
+      "type": "origins:resource",
+      "resource": "sprightly_fox:sprightly_regeneration_speed",
+      "comparison": "==",
+      "compare_to": 〈varιiι+1〉
+    }
+  },〉
+  "hidden": true
+}〉
