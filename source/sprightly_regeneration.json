@@ -86,10 +86,21 @@
       "change": 〈ifι〈varιi〉==6ι2ι1〉
     },
     "condition": {
-      "type": "origins:resource",
-      "resource": "sprightly_fox:sprightly_regeneration_speed",
-      "comparison": "==",
-      "compare_to": 〈varιiι+1〉
+      "type": "origins:and",
+      "conditions": [
+        {
+          "type": "origins:resource",
+          "resource": "sprightly_fox:sprightly_regeneration_speed",
+          "comparison": "==",
+          "compare_to": 〈varιiι+1〉
+        },
+        {
+          "type": "origins:resource",
+          "resource": "sprightly_fox:sprightly_capacity_regen",
+          "comparison": ">",
+          "compare_to": 0
+        }
+      ]
     }
   },〉
   "hidden": true

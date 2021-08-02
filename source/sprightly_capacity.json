@@ -1,0 +1,126 @@
+〈defιaddιparι〈toSpaceιcalcι, {
+        "type": "origins:if_else",
+        "condition": {〈replaceι〈n〉ι〈n〉      ι〈varιpar_1〉〉  },
+        "if_action": {
+          "type": "origins:change_resource",
+          "resource": "sprightly_fox:sprightly_capacity_max",
+          "change": 〈varιpar_0ι*(-10)〉
+        }
+      }〉
+〉
+
+〈runιaddι1ι
+    "type": "origins:relative_health",
+    "comparison": "<=",
+    "compare_to": 0.5
+〉
+〈runιaddι0.5ι
+    "type": "origins:equipped_item",
+    "equipment_slot": "head",
+    "item_condition": {
+      "type": "origins:armor_value",
+      "comparison": ">",
+      "compare_to": 1
+    }
+〉
+〈runιaddι0.5ι
+    "type": "origins:equipped_item",
+    "equipment_slot": "chest",
+    "item_condition": {
+      "type": "origins:armor_value",
+      "comparison": ">",
+      "compare_to": 3
+    }
+〉
+〈runιaddι0.5ι
+    "type": "origins:equipped_item",
+    "equipment_slot": "legs",
+    "item_condition": {
+      "type": "origins:armor_value",
+      "comparison": ">",
+      "compare_to": 2
+    }
+〉
+〈runιaddι0.5ι
+    "type": "origins:equipped_item",
+    "equipment_slot": "feet",
+    "item_condition": {
+      "type": "origins:armor_value",
+      "comparison": ">",
+      "compare_to": 1
+    }
+〉
+
+〈toFileι../out/sprightly_fox/powers/sprightly_capacity.jsonι{
+  "type":"origins:multiple",
+  "max": {
+    "type": "origins:resource",
+    "min": 0,
+    "max": 70,
+    "start_value": 0,
+    "hud_render": {
+      "should_render": false
+  	}
+  },
+  "regen": {
+    "type": "origins:resource",
+    "min": 0,
+    "max": 1,
+    "start_value": 0,
+    "hud_render": {
+      "should_render": false
+  	}
+  },
+  "calculate": {
+    "type": "origins:action_over_time",
+    "interval": 20,
+    "entity_action": {
+      "type": "origins:and",
+      "actions": [{
+        "type": "origins:change_resource",
+        "resource": "sprightly_fox:sprightly_capacity_max",
+        "change": 100
+      }〈readSpaceιcalc〉]
+    }
+  },
+  "check": {
+    "type": "origins:action_over_time",
+    "interval": 5,
+    "entity_action": {
+      "type": "origins:if_else",
+      "if_action": {
+        "type": "origins:change_resource",
+        "resource": "sprightly_fox:sprightly_capacity_regen",
+        "change": 1
+      },
+      "else_action": {
+        "type": "origins:change_resource",
+        "resource": "sprightly_fox:sprightly_capacity_regen",
+        "change": -1
+      },
+      "condition": {
+        "type": "origins:or",
+        "conditions": [
+          〈forιiι7ι{
+            "type": "origins:and",
+            "conditions": [
+              {
+                "type": "origins:resource",
+                "resource": "sprightly_fox:sprightly_capacity_max",
+                "comparison": ">",
+                "compare_to": 〈varιiι*10〉
+              },
+              {      
+                "type": "origins:resource",
+                "resource": "sprightly_fox:sprightly",
+                "comparison": "<",
+                "compare_to": 〈varιiι*10+10〉
+              }
+            ]
+          }ι, 〉
+        ]
+      }
+    }
+  },
+  "hidden": true
+}〉

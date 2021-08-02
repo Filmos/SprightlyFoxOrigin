@@ -9,9 +9,9 @@
     "bar_index": 23,
     "condition": {
       "type": "origins:resource",
-      "resource": "sprightly_fox:sprightly",
-      "comparison": "<",
-      "compare_to": 70
+      "resource": "sprightly_fox:sprightly_capacity_regen",
+      "comparison": ">",
+      "compare_to": 0
     }
 	},
 	"hidden": true

@@ -130,10 +130,21 @@
       "change": 1
     },
     "condition": {
-      "type": "origins:resource",
-      "resource": "sprightly_fox:sprightly_regeneration_speed",
-      "comparison": "==",
-      "compare_to": 1
+      "type": "origins:and",
+      "conditions": [
+        {
+          "type": "origins:resource",
+          "resource": "sprightly_fox:sprightly_regeneration_speed",
+          "comparison": "==",
+          "compare_to": 1
+        },
+        {
+          "type": "origins:resource",
+          "resource": "sprightly_fox:sprightly_capacity_regen",
+          "comparison": ">",
+          "compare_to": 0
+        }
+      ]
     }
   },
   "regen_stage_2": {
@@ -145,10 +156,21 @@
       "change": 1
     },
     "condition": {
-      "type": "origins:resource",
-      "resource": "sprightly_fox:sprightly_regeneration_speed",
-      "comparison": "==",
-      "compare_to": 2
+      "type": "origins:and",
+      "conditions": [
+        {
+          "type": "origins:resource",
+          "resource": "sprightly_fox:sprightly_regeneration_speed",
+          "comparison": "==",
+          "compare_to": 2
+        },
+        {
+          "type": "origins:resource",
+          "resource": "sprightly_fox:sprightly_capacity_regen",
+          "comparison": ">",
+          "compare_to": 0
+        }
+      ]
     }
   },
   "regen_stage_3": {
@@ -160,10 +182,21 @@
       "change": 1
     },
     "condition": {
-      "type": "origins:resource",
-      "resource": "sprightly_fox:sprightly_regeneration_speed",
-      "comparison": "==",
-      "compare_to": 3
+      "type": "origins:and",
+      "conditions": [
+        {
+          "type": "origins:resource",
+          "resource": "sprightly_fox:sprightly_regeneration_speed",
+          "comparison": "==",
+          "compare_to": 3
+        },
+        {
+          "type": "origins:resource",
+          "resource": "sprightly_fox:sprightly_capacity_regen",
+          "comparison": ">",
+          "compare_to": 0
+        }
+      ]
     }
   },
   "regen_stage_4": {
@@ -175,10 +208,21 @@
       "change": 1
     },
     "condition": {
-      "type": "origins:resource",
-      "resource": "sprightly_fox:sprightly_regeneration_speed",
-      "comparison": "==",
-      "compare_to": 4
+      "type": "origins:and",
+      "conditions": [
+        {
+          "type": "origins:resource",
+          "resource": "sprightly_fox:sprightly_regeneration_speed",
+          "comparison": "==",
+          "compare_to": 4
+        },
+        {
+          "type": "origins:resource",
+          "resource": "sprightly_fox:sprightly_capacity_regen",
+          "comparison": ">",
+          "compare_to": 0
+        }
+      ]
     }
   },
   "regen_stage_5": {
@@ -190,10 +234,21 @@
       "change": 1
     },
     "condition": {
-      "type": "origins:resource",
-      "resource": "sprightly_fox:sprightly_regeneration_speed",
-      "comparison": "==",
-      "compare_to": 5
+      "type": "origins:and",
+      "conditions": [
+        {
+          "type": "origins:resource",
+          "resource": "sprightly_fox:sprightly_regeneration_speed",
+          "comparison": "==",
+          "compare_to": 5
+        },
+        {
+          "type": "origins:resource",
+          "resource": "sprightly_fox:sprightly_capacity_regen",
+          "comparison": ">",
+          "compare_to": 0
+        }
+      ]
     }
   },
   "regen_stage_6": {
@@ -205,10 +260,21 @@
       "change": 1
     },
     "condition": {
-      "type": "origins:resource",
-      "resource": "sprightly_fox:sprightly_regeneration_speed",
-      "comparison": "==",
-      "compare_to": 6
+      "type": "origins:and",
+      "conditions": [
+        {
+          "type": "origins:resource",
+          "resource": "sprightly_fox:sprightly_regeneration_speed",
+          "comparison": "==",
+          "compare_to": 6
+        },
+        {
+          "type": "origins:resource",
+          "resource": "sprightly_fox:sprightly_capacity_regen",
+          "comparison": ">",
+          "compare_to": 0
+        }
+      ]
     }
   },
   "regen_stage_7": {
@@ -220,10 +286,21 @@
       "change": 2
     },
     "condition": {
-      "type": "origins:resource",
-      "resource": "sprightly_fox:sprightly_regeneration_speed",
-      "comparison": "==",
-      "compare_to": 7
+      "type": "origins:and",
+      "conditions": [
+        {
+          "type": "origins:resource",
+          "resource": "sprightly_fox:sprightly_regeneration_speed",
+          "comparison": "==",
+          "compare_to": 7
+        },
+        {
+          "type": "origins:resource",
+          "resource": "sprightly_fox:sprightly_capacity_regen",
+          "comparison": ">",
+          "compare_to": 0
+        }
+      ]
     }
   },
   "hidden": true
