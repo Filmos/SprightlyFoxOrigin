@@ -50,7 +50,7 @@
     "min_amplifier": 4
 〉
 
-〈toFileι../out/sprightly_fox/powers/sprightly_regeneration.jsonι{
+〈toFileι../out/data/sprightly_fox/powers/sprightly_regeneration.jsonι{
   "type":"origins:multiple",
   "speed": {
     "type": "origins:resource",

@@ -51,7 +51,7 @@
     }
 〉
 
-〈toFileι../out/sprightly_fox/powers/sprightly_capacity.jsonι{
+〈toFileι../out/data/sprightly_fox/powers/sprightly_capacity.jsonι{
   "type":"origins:multiple",
   "max": {
     "type": "origins:resource",
