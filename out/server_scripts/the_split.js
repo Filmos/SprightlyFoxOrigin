@@ -95,6 +95,52 @@ let monument_shape = [
   [ 0, -2, -2, "Top", 0.7],
 ]
 
+function loadNbtStorage(player) {
+  let nbt = player.getFullNBT().ForgeCaps["origins:origin_component"].Powers
+  let ret = {}
+  for(let n in nbt) ret[nbt[n].Type] = nbt[n].Data
+  return ret
+}
+function saveNbtStorage(player, data) {
+  let dat = []
+  for(let k in data) dat.push({Type: k, Data: data[k]})
+  let nbt = player.getFullNBT()
+  nbt.ForgeCaps["origins:origin_component"].Powers = dat
+  player.setFullNBT(nbt)
+}
+
+function loadStoredTag(player, tag) {
+  let ret = null
+  let tags = player.getTags().forEach(t => {
+    if(t.indexOf(tag+"-")==0) ret = t.split("-").slice(1).join(":")
+  })
+  return ret
+}
+function saveStoredTag(player, tag, value) {
+  let toRemove = []
+  let tags = player.getTags().forEach(t => {
+    if(t.indexOf(tag+"-")==0) toRemove.push(t)
+  })
+  toRemove.forEach(t => player.server.runCommandSilent("/tag "+player.name+" remove "+t))
+  player.server.runCommandSilent("/tag "+player.name+" add "+tag+"-"+value.replaceAll(":", "-"))
+}
+
+function getMonumentPos(player, type) {
+  let dim = loadStoredTag(player, type+"PosD")
+  let nbt = loadNbtStorage(player)
+  let pref = "sprightly_fox:the_split_"+type+"Pos"
+  return {x: nbt[pref+"X"], y: nbt[pref+"Y"], z: nbt[pref+"Z"], d: dim}
+}
+function setMonumentPos(player, type, value) {
+  let nbt = loadNbtStorage(player)
+  let pref = "sprightly_fox:the_split_"+type+"Pos"
+  nbt[pref+"X"] = value.x
+  nbt[pref+"Y"] = value.y
+  nbt[pref+"Z"] = value.z
+  saveNbtStorage(player, nbt)
+  saveStoredTag(player, type+"PosD", value.d)
+}
+
 onEvent('block.right_click', event => {
 	if(event.item.getId() != 'rftoolsbase:infused_diamond') return
   
@@ -127,17 +173,10 @@ onEvent('block.right_click', event => {
   if(missed > 0) {
     event.server.runCommandSilent('/tellraw '+event.player.name+' [{"text":"Invalid structure!","color":"dark_red"}]')
   } else {
-    let isActive = false
-    let nbt = event.player.getFullNBT()
-    // ForgeCaps.origins:origin_component.Powers[{Type:"sprightly_fox:sprightly"}].Data
-    for(let i = 0; i<nbt.ForgeCaps["origins:origin_component"].Powers.length; i++) {
-      if(nbt.ForgeCaps["origins:origin_component"].Powers[i].Type != "sprightly_fox:sprightly") continue
-      nbt.ForgeCaps["origins:origin_component"].Powers[i].Data = -70
-    }
+    let curMon = getMonumentPos(event.player, "Mon")
     
-    let mnbt = nbt.ForgeData["monument"]
-    if(!mnbt) mnbt = {}
-    else if(mnbt.pos && mnbt.pos.x == event.block.x && mnbt.pos.y == event.block.y && mnbt.pos.z == event.block.z) {isActive = true}
+    let pref = "sprightly_fox:the_split_MonPos"
+    let isActive = (curMon.d == event.block.getDimension() && curMon.x == event.block.x && curMon.y == event.block.y && curMon.z == event.block.z)
     
     
     let message = '/tellraw '+event.player.name+' [{"text":"MONUMENT '+(isActive?"ACTIVE":"CREATED")+'","color":"dark_purple"},{"text":"\\nStability: ","color":"gray"},{"text":"'+Math.round(combined.Stability*10)/10+'","color":"light_purple"},{"text":"\\nPotential: ","color":"gray"},{"text":"'+Math.round(combined.Potential*10)/10+'","color":"light_purple"}'
@@ -147,10 +186,14 @@ onEvent('block.right_click', event => {
     }
     event.server.runCommandSilent(message+"]")
     
-    
-    mnbt.pos = {x: event.block.x, y: event.block.y, z: event.block.z}
-    nbt.ForgeData["monument"] = mnbt
-    event.player.setFullNBT(nbt)
+    event.player.tell("["+curMon.d)
+    event.player.tell("]"+event.block.getDimension())
+    if(!isActive) setMonumentPos(event.player, "Mon", {
+      x: event.block.x,
+      y: event.block.y,
+      z: event.block.z,
+      d: event.block.getDimension()
+    })
   }
 	
 })

@@ -1,8 +1,77 @@
 {
-  "type": "origins:resource",
-  "start_value": 0,
-  "hud_render": {
-    "should_render": false
-	},
-	"hidden": true
+  "type":"origins:multiple",
+  "MonPosX": {
+    "type": "origins:resource",
+    "start_value": 0,
+    "min": -100000,
+    "max": -100000,
+    "hud_render": {
+      "should_render": false
+  	}
+  },
+  "MonPosY": {
+    "type": "origins:resource",
+    "start_value": 300,
+    "min": -100000,
+    "max": -100000,
+    "hud_render": {
+      "should_render": false
+  	}
+  },
+  "MonPosZ": {
+    "type": "origins:resource",
+    "start_value": 0,
+    "min": -100000,
+    "max": -100000,
+    "hud_render": {
+      "should_render": false
+  	}
+  },
+  "MonPosD": {
+    "type": "origins:resource",
+    "start_value": 0,
+    "min": -100000,
+    "max": -100000,
+    "hud_render": {
+      "should_render": false
+  	}
+  },
+  "RetPosX": {
+    "type": "origins:resource",
+    "start_value": 0,
+    "min": -100000,
+    "max": -100000,
+    "hud_render": {
+      "should_render": false
+  	}
+  },
+  "RetPosY": {
+    "type": "origins:resource",
+    "start_value": 300,
+    "min": -100000,
+    "max": -100000,
+    "hud_render": {
+      "should_render": false
+  	}
+  },
+  "RetPosZ": {
+    "type": "origins:resource",
+    "start_value": 0,
+    "min": -100000,
+    "max": -100000,
+    "hud_render": {
+      "should_render": false
+  	}
+  },
+  "RetPosD": {
+    "type": "origins:resource",
+    "start_value": 0,
+    "min": -100000,
+    "max": -100000,
+    "hud_render": {
+      "should_render": false
+  	}
+  },
+	"name": "Bilocation",
+	"description": "By binding yourself to a monument you can teleport to and from it. Beware, low quality of the monument can result in unexpected consequences."
 }
