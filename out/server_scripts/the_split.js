@@ -141,6 +141,23 @@ function setMonumentPos(player, type, value) {
   saveStoredTag(player, type+"PosD", value.d)
 }
 
+function animateMonument(server, pos, firstTime) {
+  server.runCommandSilent(`/execute in ${pos.d} run particle minecraft:end_rod ${pos.x+0.5} ${pos.y} ${pos.z+0.5} 0 0 0 1 800`)
+  if(firstTime) server.runCommandSilent(`/execute in ${pos.d} run particle minecraft:explosion ${pos.x+0.5} ${pos.y-2.5} ${pos.z+0.5} 0 0 0 1 10`)
+  for(let dir of [[0, 1], [0, -1], [1, 0], [-1, 0]]) {
+    for(let i = 0; i<20; i++) server.runCommandSilent(`/execute in ${pos.d} run particle minecraft:end_rod ${pos.x+dir[0]*i/10+0.5} ${pos.y-i/10+0.75} ${pos.z+dir[1]*i/10+0.5}`)
+    if(firstTime) server.runCommandSilent(`/execute in ${pos.d} run particle minecraft:explosion ${pos.x+dir[0]*2+0.5} ${pos.y-1.5} ${pos.z+dir[1]*2+0.5}`)
+  }
+  
+  if(firstTime) {
+    server.runCommandSilent(`/execute in ${pos.d} run playsound minecraft:block.beacon.power_select block @a ${pos.x+0.5} ${pos.y+0.5} ${pos.z+0.5} 3 1.4`)
+    server.runCommandSilent(`/execute in ${pos.d} run playsound minecraft:block.beacon.activate block @a ${pos.x+0.5} ${pos.y+0.5} ${pos.z+0.5} 3 0.8`)
+  } else {
+    server.runCommandSilent(`/execute in ${pos.d} run playsound minecraft:block.beacon.ambient block @a ${pos.x+0.5} ${pos.y+0.5} ${pos.z+0.5} 3 0.8`)
+    server.runCommandSilent(`/execute in ${pos.d} run playsound minecraft:block.beacon.ambient block @a ${pos.x+0.5} ${pos.y+0.5} ${pos.z+0.5} 3 0.5`)
+  }
+}
+
 onEvent('block.right_click', event => {
 	if(event.item.getId() != 'rftoolsbase:infused_diamond') return
   
@@ -186,14 +203,19 @@ onEvent('block.right_click', event => {
     }
     event.server.runCommandSilent(message+"]")
     
-    event.player.tell("["+curMon.d)
-    event.player.tell("]"+event.block.getDimension())
-    if(!isActive) setMonumentPos(event.player, "Mon", {
-      x: event.block.x,
-      y: event.block.y,
-      z: event.block.z,
-      d: event.block.getDimension()
-    })
+    
+    if(!isActive) {
+      let newPos = {
+        x: event.block.x,
+        y: event.block.y,
+        z: event.block.z,
+        d: event.block.getDimension()
+      }
+      setMonumentPos(event.player, "Mon", newPos)
+      if(event.item.count == 1) event.server.runCommandSilent('/replaceitem entity '+event.player.name+' weapon.mainhand minecraft:air')
+			else event.server.runCommandSilent('/replaceitem entity '+event.player.name+' weapon.mainhand rftoolsbase:infused_diamond '+(event.item.count-1))
+      animateMonument(event.server, newPos, true)
+    }
   }
 	
 })
