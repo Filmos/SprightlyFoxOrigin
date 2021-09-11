@@ -1,6 +1,7 @@
 {
   "replace": false,
   "origins": [
-	   "sprightly_fox:sprightly_fox"
+	   "sprightly_fox:sprightly_fox",
+	   "sprightly_fox:the_split"
   ]
 }
