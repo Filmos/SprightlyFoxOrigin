@@ -27,15 +27,6 @@
       "should_render": false
   	}
   },
-  "MonPosD": {
-    "type": "origins:resource",
-    "start_value": 0,
-    "min": -100000,
-    "max": -100000,
-    "hud_render": {
-      "should_render": false
-  	}
-  },
   "RetPosX": {
     "type": "origins:resource",
     "start_value": 0,
@@ -63,13 +54,27 @@
       "should_render": false
   	}
   },
-  "RetPosD": {
-    "type": "origins:resource",
-    "start_value": 0,
-    "min": -100000,
-    "max": -100000,
+  "Teleport": {
+    "type": "origins:active_self",
+    "entity_action": {
+      "type": "origins:apply_effect",
+      "effect": {
+        "effect": "minecraft:levitation",
+        "duration": 30,
+        "amplifier": 0,
+        "is_ambient": true,
+        "show_particles": false,
+        "show_icon": false
+      }
+    },
+    "key": {
+        "key": "key.origins.secondary_active"
+    },
+    "cooldown": 24,
     "hud_render": {
-      "should_render": false
+      "should_render": true,
+      "sprite_location": "kubejs:textures/gui/resource_bar.png",
+      "bar_index": 0
   	}
   },
 	"name": "Bilocation",

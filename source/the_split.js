@@ -163,6 +163,7 @@ function saveStoredTag(player, tag, value) {
   player.server.runCommandSilent("/tag "+player.name+" add "+tag+"-"+value.replaceAll(":", "-"))
 }
 
+
 function getMonumentPos(player, type) {
   let dim = loadStoredTag(player, type+"PosD")
   let nbt = loadNbtStorage(player)
@@ -179,6 +180,17 @@ function setMonumentPos(player, type, value) {
   saveStoredTag(player, type+"PosD", value.d)
 }
 
+
+function displayMonumentStats(rootBlock, player, server, title) {
+  let monStats = analyzeMonument(rootBlock, server, true)
+  
+  let message = '/tellraw '+player.name+' [{"text":"'+title+'","color":"dark_purple"},{"text":"\\nStability: ","color":"gray"},{"text":"'+Math.round(monStats.Stability*10)/10+'","color":"light_purple"},{"text":"\\nPotential: ","color":"gray"},{"text":"'+Math.round(monStats.Potential*10)/10+'","color":"light_purple"}'
+  for(let spec in monStats) {
+    if(spec == "Stability" || spec == "Potential" || spec == "missed") continue
+    message += ',{"text":"\\n'+spec+': ","color":"white"},{"text":"'+Math.round(monStats[spec]*10)/10+'","color":"light_purple"}'
+  }
+  server.runCommandSilent(message+"]")
+}
 function animateMonument(server, pos, firstTime) {
   server.runCommandSilent(`/execute in ${pos.d} run particle minecraft:end_rod ${pos.x+0.5} ${pos.y} ${pos.z+0.5} 0 0 0 1 800`)
   if(firstTime) server.runCommandSilent(`/execute in ${pos.d} run particle minecraft:explosion ${pos.x+0.5} ${pos.y-2.5} ${pos.z+0.5} 0 0 0 1 10`)
@@ -195,54 +207,77 @@ function animateMonument(server, pos, firstTime) {
     server.runCommandSilent(`/execute in ${pos.d} run playsound minecraft:block.beacon.ambient block @a ${pos.x+0.5} ${pos.y+0.5} ${pos.z+0.5} 3 0.5`)
   }
 }
-
-onEvent('block.right_click', event => {
-	if(event.item.getId() != 'rftoolsbase:infused_diamond') return
-  
-  let missed = 0
+function analyzeMonument(rootBlock, server, displayMissing) {
   let combined = {}
   for(let pos of monument_shape) { 
-    let block = event.block.offset(pos[0], pos[1], pos[2])
+    let block = rootBlock.offset(pos[0], pos[1], pos[2])
     
-  	mat = monument_materials[pos[3]][block.getId()]
-    if(mat) {
-      for(let stat in mat) {
-        if(!combined[stat]) combined[stat] = 0
-        combined[stat] += mat[stat]*pos[4]
+    mat = monument_materials[pos[3]][block.getId()]
+    if(!mat) {
+      if(displayMissing) {
+        server.runCommandSilent('/execute in '+block.getDimension()+' run particle alexsmobs:shocked '+(block.x-0.1)+' '+(block.y)+' '+(block.z-0.1))
+        server.runCommandSilent('/execute in '+block.getDimension()+' run particle alexsmobs:shocked '+(block.x-0.1)+' '+(block.y)+' '+(block.z))
+        server.runCommandSilent('/execute in '+block.getDimension()+' run particle alexsmobs:shocked '+(block.x-0.1)+' '+(block.y)+' '+(block.z+1.1))
+        server.runCommandSilent('/execute in '+block.getDimension()+' run particle alexsmobs:shocked '+(block.x)+' '+(block.y)+' '+(block.z-0.1))
+        server.runCommandSilent('/execute in '+block.getDimension()+' run particle alexsmobs:shocked '+(block.x)+' '+(block.y)+' '+(block.z+1.1))
+        server.runCommandSilent('/execute in '+block.getDimension()+' run particle alexsmobs:shocked '+(block.x+1.1)+' '+(block.y)+' '+(block.z-0.1))
+        server.runCommandSilent('/execute in '+block.getDimension()+' run particle alexsmobs:shocked '+(block.x+1.1)+' '+(block.y)+' '+(block.z))
+        server.runCommandSilent('/execute in '+block.getDimension()+' run particle alexsmobs:shocked '+(block.x+1.1)+' '+(block.y)+' '+(block.z+1.1))
       }
-    } else {
-      missed++
-      event.server.runCommandSilent('/particle alexsmobs:shocked '+(block.x-0.1)+' '+(block.y)+' '+(block.z-0.1))
-      event.server.runCommandSilent('/particle alexsmobs:shocked '+(block.x-0.1)+' '+(block.y)+' '+(block.z))
-      event.server.runCommandSilent('/particle alexsmobs:shocked '+(block.x-0.1)+' '+(block.y)+' '+(block.z+1.1))
-      event.server.runCommandSilent('/particle alexsmobs:shocked '+(block.x)+' '+(block.y)+' '+(block.z-0.1))
-      event.server.runCommandSilent('/particle alexsmobs:shocked '+(block.x)+' '+(block.y)+' '+(block.z+1.1))
-      event.server.runCommandSilent('/particle alexsmobs:shocked '+(block.x+1.1)+' '+(block.y)+' '+(block.z-0.1))
-      event.server.runCommandSilent('/particle alexsmobs:shocked '+(block.x+1.1)+' '+(block.y)+' '+(block.z))
-      event.server.runCommandSilent('/particle alexsmobs:shocked '+(block.x+1.1)+' '+(block.y)+' '+(block.z+1.1))
+      mat = {missed: 1}
+    }
+    for(let stat in mat) {
+      if(!combined[stat]) combined[stat] = 0
+      combined[stat] += mat[stat]*pos[4]
     }
   }
+  return combined
+}
+
+
+// Teleportation trigger
+events.listen('player.tick', function (event) {
+  if (event.player.server && event.player.ticksExisted % 10 === 0) {
+    if(!event.player.getPotionEffects().isActive("minecraft:levitation")
+    || event.server.runCommandSilent("origin has power "+event.player.name+" sprightly_fox:the_split")==0) return
+    
+    event.server.scheduleInTicks(7, event.server, callback => {
+      let pos = getMonumentPos(event.player, "Mon"); if(!pos.d) return
+      let block = event.server.getWorld(pos.d); if(!block) return
+      block = block.getBlock(pos.x, pos.y, pos.z)
+      let monStats = analyzeMonument(block, event.server, false)
+      
+      event.server.runCommandSilent("/effect clear "+event.player.name+" minecraft:levitation")
+      event.server.runCommandSilent(`/execute at ${event.player.name} run tag @e[distance=..0.5] add TheSplit.MidTeleport`)
+      event.server.runCommandSilent(`/execute in ${pos.d} run tp @e[tag=TheSplit.MidTeleport] ${pos.x+0.5} ${pos.y+1.5} ${pos.z+0.5}`)
+      event.server.runCommandSilent(`/tag @e[tag=TheSplit.MidTeleport] remove TheSplit.MidTeleport`)
+      event.server.scheduleInTicks(3, event.server, callback => {animateMonument(event.server, pos, false)})
+    })
+    
+  }
+})
+
+
+// Monument activation/stat check
+onEvent('block.right_click', event => {
+	if(event.item.getId() != 'rftoolsbase:infused_diamond') return
+  if(event.server.runCommandSilent("origin has power "+event.player.name+" sprightly_fox:the_split")==0) return
   
+  let missed = 0
   
   
   if(missed > 0) {
     event.server.runCommandSilent('/tellraw '+event.player.name+' [{"text":"Invalid structure!","color":"dark_red"}]')
   } else {
     let curMon = getMonumentPos(event.player, "Mon")
-    
-    let pref = "sprightly_fox:the_split_MonPos"
     let isActive = (curMon.d == event.block.getDimension() && curMon.x == event.block.x && curMon.y == event.block.y && curMon.z == event.block.z)
     
-    
-    let message = '/tellraw '+event.player.name+' [{"text":"MONUMENT '+(isActive?"ACTIVE":"CREATED")+'","color":"dark_purple"},{"text":"\\nStability: ","color":"gray"},{"text":"'+Math.round(combined.Stability*10)/10+'","color":"light_purple"},{"text":"\\nPotential: ","color":"gray"},{"text":"'+Math.round(combined.Potential*10)/10+'","color":"light_purple"}'
-    for(let spec in combined) {
-      if(spec == "Stability" || spec == "Potential") continue
-      message += ',{"text":"\\n'+spec+': ","color":"white"},{"text":"'+Math.round(combined[spec]*10)/10+'","color":"light_purple"}'
-    }
-    event.server.runCommandSilent(message+"]")
-    
+    displayMonumentStats(event.block, event.server, event.player, 'MONUMENT '+(isActive?"ACTIVE":"CREATED"))
     
     if(!isActive) {
+      if(event.item.count == 1) event.server.runCommandSilent('/replaceitem entity '+event.player.name+' weapon.mainhand minecraft:air')
+      else event.server.runCommandSilent('/replaceitem entity '+event.player.name+' weapon.mainhand rftoolsbase:infused_diamond '+(event.item.count-1))
+      
       let newPos = {
         x: event.block.x,
         y: event.block.y,
@@ -250,8 +285,6 @@ onEvent('block.right_click', event => {
         d: event.block.getDimension()
       }
       setMonumentPos(event.player, "Mon", newPos)
-      if(event.item.count == 1) event.server.runCommandSilent('/replaceitem entity '+event.player.name+' weapon.mainhand minecraft:air')
-			else event.server.runCommandSilent('/replaceitem entity '+event.player.name+' weapon.mainhand rftoolsbase:infused_diamond '+(event.item.count-1))
       animateMonument(event.server, newPos, true)
     }
   }
