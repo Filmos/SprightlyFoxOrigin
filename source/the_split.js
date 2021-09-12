@@ -168,18 +168,25 @@ function getMonumentPos(player, type) {
   let dim = loadStoredTag(player, type+"PosD")
   let nbt = loadNbtStorage(player)
   let pref = "sprightly_fox:the_split_"+type+"Pos"
-  return {x: nbt[pref+"X"], y: nbt[pref+"Y"], z: nbt[pref+"Z"], d: dim}
+  return {x: nbt[pref+"X"]/10, y: nbt[pref+"Y"]/10, z: nbt[pref+"Z"]/10, d: dim}
 }
 function setMonumentPos(player, type, value) {
   let nbt = loadNbtStorage(player)
   let pref = "sprightly_fox:the_split_"+type+"Pos"
-  nbt[pref+"X"] = value.x
-  nbt[pref+"Y"] = value.y
-  nbt[pref+"Z"] = value.z
+  nbt[pref+"X"] = Math.round(value.x*10)
+  nbt[pref+"Y"] = Math.round(value.y*10)
+  nbt[pref+"Z"] = Math.round(value.z*10)
   saveNbtStorage(player, nbt)
   saveStoredTag(player, type+"PosD", value.d)
 }
-
+function getBilocState(player) {
+  return loadNbtStorage(player)["sprightly_fox:the_split_BilocState"]
+}
+function setBilocState(player, state) {
+  let nbt = loadNbtStorage(player)
+  nbt["sprightly_fox:the_split_BilocState"] = state
+  saveNbtStorage(player, nbt)
+}
 
 function displayMonumentStats(rootBlock, player, server, title) {
   let monStats = analyzeMonument(rootBlock, server, true)
@@ -191,15 +198,18 @@ function displayMonumentStats(rootBlock, player, server, title) {
   }
   server.runCommandSilent(message+"]")
 }
-function animateMonument(server, pos, firstTime) {
-  server.runCommandSilent(`/execute in ${pos.d} run particle minecraft:end_rod ${pos.x+0.5} ${pos.y} ${pos.z+0.5} 0 0 0 1 800`)
-  if(firstTime) server.runCommandSilent(`/execute in ${pos.d} run particle minecraft:explosion ${pos.x+0.5} ${pos.y-2.5} ${pos.z+0.5} 0 0 0 1 10`)
-  for(let dir of [[0, 1], [0, -1], [1, 0], [-1, 0]]) {
-    for(let i = 0; i<20; i++) server.runCommandSilent(`/execute in ${pos.d} run particle minecraft:end_rod ${pos.x+dir[0]*i/10+0.5} ${pos.y-i/10+0.75} ${pos.z+dir[1]*i/10+0.5}`)
-    if(firstTime) server.runCommandSilent(`/execute in ${pos.d} run particle minecraft:explosion ${pos.x+dir[0]*2+0.5} ${pos.y-1.5} ${pos.z+dir[1]*2+0.5}`)
+function animateMonument(server, pos, animType) {
+  if(animType=="fromMon") server.runCommandSilent(`/execute in ${pos.d} run particle minecraft:end_rod ${pos.x+0.5} ${pos.y} ${pos.z+0.5} 0 0 0 0.1 70`)
+  else {
+    server.runCommandSilent(`/execute in ${pos.d} run particle minecraft:end_rod ${pos.x+0.5} ${pos.y} ${pos.z+0.5} 0 0 0 1 300`)
+    if(animType=="initial") server.runCommandSilent(`/execute in ${pos.d} run particle minecraft:explosion ${pos.x+0.5} ${pos.y-2.5} ${pos.z+0.5} 0 0 0 1 10`)
+    for(let dir of [[0, 1], [0, -1], [1, 0], [-1, 0]]) {
+      for(let i = 0; i<20; i++) server.runCommandSilent(`/execute in ${pos.d} run particle minecraft:end_rod ${pos.x+dir[0]*i/10+0.5} ${pos.y-i/10+0.75} ${pos.z+dir[1]*i/10+0.5}`)
+      if(animType=="initial") server.runCommandSilent(`/execute in ${pos.d} run particle minecraft:explosion ${pos.x+dir[0]*2+0.5} ${pos.y-1.5} ${pos.z+dir[1]*2+0.5}`)
+    }
   }
   
-  if(firstTime) {
+  if(animType=="initial") {
     server.runCommandSilent(`/execute in ${pos.d} run playsound minecraft:block.beacon.power_select block @a ${pos.x+0.5} ${pos.y+0.5} ${pos.z+0.5} 3 1.4`)
     server.runCommandSilent(`/execute in ${pos.d} run playsound minecraft:block.beacon.activate block @a ${pos.x+0.5} ${pos.y+0.5} ${pos.z+0.5} 3 0.8`)
   } else {
@@ -247,11 +257,27 @@ events.listen('player.tick', function (event) {
       block = block.getBlock(pos.x, pos.y, pos.z)
       let monStats = analyzeMonument(block, event.server, false)
       
+      let toMon = getBilocState(event.player)
+      if(toMon == 1) {
+        let animPos = {x: pos.x, y: pos.y, z: pos.z, d: pos.d}
+        event.server.scheduleInTicks(3, event.server, callback => {animateMonument(event.server, animPos, "toMon")})
+        pos.y++
+        let retPos = {
+          x: event.player.x-0.5,
+          y: event.player.y-0.5,
+          z: event.player.z-0.5,
+          d: event.player.getWorld().getDimension()
+        }
+        setMonumentPos(event.player, "Ret", retPos)
+      } else {
+        pos = getMonumentPos(event.player, "Ret"); if(!pos.d) return
+        event.server.scheduleInTicks(3, event.server, callback => {animateMonument(event.server, pos, "fromMon")})
+      }
       event.server.runCommandSilent("/effect clear "+event.player.name+" minecraft:levitation")
       event.server.runCommandSilent(`/execute at ${event.player.name} run tag @e[distance=..0.5] add TheSplit.MidTeleport`)
-      event.server.runCommandSilent(`/execute in ${pos.d} run tp @e[tag=TheSplit.MidTeleport] ${pos.x+0.5} ${pos.y+1.5} ${pos.z+0.5}`)
+      event.server.runCommandSilent(`/execute in ${pos.d} run tp @e[tag=TheSplit.MidTeleport] ${pos.x+0.5} ${pos.y+0.5} ${pos.z+0.5}`)
       event.server.runCommandSilent(`/tag @e[tag=TheSplit.MidTeleport] remove TheSplit.MidTeleport`)
-      event.server.scheduleInTicks(3, event.server, callback => {animateMonument(event.server, pos, false)})
+      setBilocState(event.player, 1-toMon)
     })
     
   }
@@ -272,7 +298,7 @@ onEvent('block.right_click', event => {
     let curMon = getMonumentPos(event.player, "Mon")
     let isActive = (curMon.d == event.block.getDimension() && curMon.x == event.block.x && curMon.y == event.block.y && curMon.z == event.block.z)
     
-    displayMonumentStats(event.block, event.server, event.player, 'MONUMENT '+(isActive?"ACTIVE":"CREATED"))
+    displayMonumentStats(event.block, event.player, event.server, 'MONUMENT '+(isActive?"ACTIVE":"CREATED"))
     
     if(!isActive) {
       if(event.item.count == 1) event.server.runCommandSilent('/replaceitem entity '+event.player.name+' weapon.mainhand minecraft:air')
@@ -285,7 +311,8 @@ onEvent('block.right_click', event => {
         d: event.block.getDimension()
       }
       setMonumentPos(event.player, "Mon", newPos)
-      animateMonument(event.server, newPos, true)
+      animateMonument(event.server, newPos, "initial")
+      setBilocState(event.player, 1)
     }
   }
 	
