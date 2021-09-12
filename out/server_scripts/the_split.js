@@ -153,12 +153,18 @@ function setBilocState(player, state) {
 function displayMonumentStats(rootBlock, player, server, title) {
   let monStats = analyzeMonument(rootBlock, server, true)
   
-  let message = '/tellraw '+player.name+' [{"text":"'+title+'","color":"dark_purple"},{"text":"\\nStability: ","color":"gray"},{"text":"'+Math.round(monStats.Stability*10)/10+'","color":"light_purple"},{"text":"\\nPotential: ","color":"gray"},{"text":"'+Math.round(monStats.Potential*10)/10+'","color":"light_purple"}'
-  for(let spec in monStats) {
-    if(spec == "Stability" || spec == "Potential" || spec == "missed") continue
-    message += ',{"text":"\\n'+spec+': ","color":"white"},{"text":"'+Math.round(monStats[spec]*10)/10+'","color":"light_purple"}'
+  if(monStats.missed > 0) {
+    server.runCommandSilent('/tellraw '+player.name+' [{"text":"Invalid structure!","color":"dark_red"}]')
+  } else {
+    let message = '/tellraw '+player.name+' [{"text":"'+title+'","color":"dark_purple"},{"text":"\\nStability: ","color":"gray"},{"text":"'+Math.round(monStats.Stability*10)/10+'","color":"light_purple"},{"text":"\\nPotential: ","color":"gray"},{"text":"'+Math.round(monStats.Potential*10)/10+'","color":"light_purple"}'
+    for(let spec in monStats) {
+      if(spec == "Stability" || spec == "Potential" || spec == "missed") continue
+      message += ',{"text":"\\n'+spec+': ","color":"white"},{"text":"'+Math.round(monStats[spec]*10)/10+'","color":"light_purple"}'
+    }
+    server.runCommandSilent(message+"]")
   }
-  server.runCommandSilent(message+"]")
+  
+  return monStats
 }
 function animateMonument(server, pos, animType) {
   if(animType=="fromMon") server.runCommandSilent(`/execute in ${pos.d} run particle minecraft:end_rod ${pos.x+0.5} ${pos.y} ${pos.z+0.5} 0 0 0 0.1 70`)
@@ -207,6 +213,20 @@ function analyzeMonument(rootBlock, server, displayMissing) {
 }
 
 
+function calcDistance(startPos, endPos) {  
+  if(startPos.d == endPos.d) return Math.sqrt((startPos.x-endPos.x)*(startPos.x-endPos.x)+(startPos.y-endPos.y)*(startPos.y-endPos.y)+(startPos.z-endPos.z)*(startPos.z-endPos.z))
+  let dimCost = (startPos.d=="minecraft:overworld"?0:500)+(endPos.d=="minecraft:overworld"?0:500)
+  
+  if(startPos.d=="minecraft:the_end") return dimCost + Math.sqrt(startPos.x*startPos.x+(64-startPos.y)*(64-startPos.y)+startPos.z*startPos.z)
+  if(endPos.d=="minecraft:the_end") return dimCost + Math.sqrt(endPos.x*endPos.x+(64-endPos.y)*(64-endPos.y)+endPos.z*endPos.z)
+  
+  if(startPos.d=="minecraft:the_nether") return dimCost + Math.sqrt((startPos.x-endPos.x/8)*(startPos.x-endPos.x/8)+(startPos.y-endPos.y)*(startPos.y-endPos.y)+(startPos.z-endPos.z/8)*(startPos.z-endPos.z/8))
+  if(endPos.d=="minecraft:the_nether") return dimCost + Math.sqrt((startPos.x/8-endPos.x)*(startPos.x/8-endPos.x)+(startPos.y-endPos.y)*(startPos.y-endPos.y)+(startPos.z/8-endPos.z)*(startPos.z/8-endPos.z))
+  
+  return dimCost + Math.sqrt((startPos.x-endPos.x)*(startPos.x-endPos.x)+(startPos.y-endPos.y)*(startPos.y-endPos.y)+(startPos.z-endPos.z)*(startPos.z-endPos.z))
+}
+
+
 // Teleportation trigger
 events.listen('player.tick', function (event) {
   if (event.player.server && event.player.ticksExisted % 10 === 0) {
@@ -215,6 +235,13 @@ events.listen('player.tick', function (event) {
     
     event.server.scheduleInTicks(7, event.server, callback => {
       let pos = getMonumentPos(event.player, "Mon"); if(!pos.d) return
+      let retPos = {
+        x: event.player.x-0.5,
+        y: event.player.y-0.5,
+        z: event.player.z-0.5,
+        d: event.player.getWorld().getDimension()
+      }
+      
       let block = event.server.getWorld(pos.d); if(!block) return
       block = block.getBlock(pos.x, pos.y, pos.z)
       let monStats = analyzeMonument(block, event.server, false)
@@ -224,12 +251,6 @@ events.listen('player.tick', function (event) {
         let animPos = {x: pos.x, y: pos.y, z: pos.z, d: pos.d}
         event.server.scheduleInTicks(3, event.server, callback => {animateMonument(event.server, animPos, "toMon")})
         pos.y++
-        let retPos = {
-          x: event.player.x-0.5,
-          y: event.player.y-0.5,
-          z: event.player.z-0.5,
-          d: event.player.getWorld().getDimension()
-        }
         setMonumentPos(event.player, "Ret", retPos)
       } else {
         pos = getMonumentPos(event.player, "Ret"); if(!pos.d) return
@@ -238,6 +259,7 @@ events.listen('player.tick', function (event) {
       event.server.runCommandSilent("/effect clear "+event.player.name+" minecraft:levitation")
       event.server.runCommandSilent(`/execute at ${event.player.name} run tag @e[distance=..0.5] add TheSplit.MidTeleport`)
       event.server.runCommandSilent(`/execute in ${pos.d} run tp @e[tag=TheSplit.MidTeleport] ${pos.x+0.5} ${pos.y+0.5} ${pos.z+0.5}`)
+      event.player.tell("Distance: "+calcDistance(pos, retPos))
       event.server.runCommandSilent(`/tag @e[tag=TheSplit.MidTeleport] remove TheSplit.MidTeleport`)
       setBilocState(event.player, 1-toMon)
     })
@@ -251,31 +273,24 @@ onEvent('block.right_click', event => {
 	if(event.item.getId() != 'rftoolsbase:infused_diamond') return
   if(event.server.runCommandSilent("origin has power "+event.player.name+" sprightly_fox:the_split")==0) return
   
-  let missed = 0
   
+  let curMon = getMonumentPos(event.player, "Mon")
+  let isActive = (curMon.d == event.block.getDimension() && curMon.x == event.block.x && curMon.y == event.block.y && curMon.z == event.block.z)
+  let stats = displayMonumentStats(event.block, event.player, event.server, 'MONUMENT '+(isActive?"ACTIVE":"CREATED"))
   
-  if(missed > 0) {
-    event.server.runCommandSilent('/tellraw '+event.player.name+' [{"text":"Invalid structure!","color":"dark_red"}]')
-  } else {
-    let curMon = getMonumentPos(event.player, "Mon")
-    let isActive = (curMon.d == event.block.getDimension() && curMon.x == event.block.x && curMon.y == event.block.y && curMon.z == event.block.z)
+  if(!(stats.missed > 0) && !isActive) {
+    if(event.item.count == 1) event.server.runCommandSilent('/replaceitem entity '+event.player.name+' weapon.mainhand minecraft:air')
+    else event.server.runCommandSilent('/replaceitem entity '+event.player.name+' weapon.mainhand rftoolsbase:infused_diamond '+(event.item.count-1))
     
-    displayMonumentStats(event.block, event.player, event.server, 'MONUMENT '+(isActive?"ACTIVE":"CREATED"))
-    
-    if(!isActive) {
-      if(event.item.count == 1) event.server.runCommandSilent('/replaceitem entity '+event.player.name+' weapon.mainhand minecraft:air')
-      else event.server.runCommandSilent('/replaceitem entity '+event.player.name+' weapon.mainhand rftoolsbase:infused_diamond '+(event.item.count-1))
-      
-      let newPos = {
-        x: event.block.x,
-        y: event.block.y,
-        z: event.block.z,
-        d: event.block.getDimension()
-      }
-      setMonumentPos(event.player, "Mon", newPos)
-      animateMonument(event.server, newPos, "initial")
-      setBilocState(event.player, 1)
+    let newPos = {
+      x: event.block.x,
+      y: event.block.y,
+      z: event.block.z,
+      d: event.block.getDimension()
     }
+    setMonumentPos(event.player, "Mon", newPos)
+    animateMonument(event.server, newPos, "initial")
+    setBilocState(event.player, 1)
   }
 	
 })
