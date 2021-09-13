@@ -263,7 +263,24 @@ function calcDistance(startPos, endPos) {
   
   return dimCost + Math.sqrt((startPos.x-endPos.x)*(startPos.x-endPos.x)+(startPos.y-endPos.y)*(startPos.y-endPos.y)+(startPos.z-endPos.z)*(startPos.z-endPos.z))
 }
+function calcSeverity(safeP, p) {
+  if(p<safeP) return 0
+  let rand = Math.random()
+  return Math.max(0,-1.27247*Math.log2((-2436*safeP*(rand+0.392857))/(1150*safeP-2800*p))-1)
+}
 
+
+function applySideEffects(server, selector, stats, dist) {
+  let severity = calcSeverity(stats.Stability*stats.Stability, dist)
+  server.runCommandSilent("/tell "+selector.replace("@e","@a")+" Severity: "+Math.round(severity*100)/100+" ["+Math.round(dist)+"/"+Math.round(stats.Stability*stats.Stability)+"]")
+  if(severity > 0) server.runCommandSilent(`/effect give ${selector} minecraft:slowness ${4+Math.round(6*severity)} ${Math.floor(severity)}`)
+  if(severity > 0) server.runCommandSilent(`/effect give ${selector} minecraft:weakness ${4+Math.round(6*severity)} ${Math.floor(severity/2)}`)
+  if(severity > 1) server.runCommandSilent(`/effect give ${selector} minecraft:mining_fatigue ${4+Math.round(6*severity)} ${Math.floor((severity-1)/2)}`)
+  if(severity > 1) server.runCommandSilent(`/effect give ${selector} minecraft:blindness ${Math.round(3*severity)}`)
+  if(severity > 2) server.runCommandSilent(`/effect give ${selector} minecraft:hunger ${2+Math.round(4*severity)} ${Math.floor(severity)}`)
+  if(severity > 3) server.runCommandSilent(`/effect give ${selector} minecraft:poison ${2+Math.round(4*severity)} ${Math.floor((severity-3)/2)}`)
+  if(severity > 4) server.runCommandSilent(`/effect give ${selector} alexsmobs:ender_flu ${Math.max(20,Math.round(300-45*(severity-4)))} ${Math.floor(severity-4)}`)
+}
 
 // Teleportation trigger
 events.listen('player.tick', function (event) {
@@ -297,7 +314,8 @@ events.listen('player.tick', function (event) {
       event.server.runCommandSilent("/effect clear "+event.player.name+" minecraft:levitation")
       event.server.runCommandSilent(`/execute at ${event.player.name} run tag @e[distance=..0.5] add TheSplit.MidTeleport`)
       event.server.runCommandSilent(`/execute in ${pos.d} run tp @e[tag=TheSplit.MidTeleport] ${pos.x+0.5} ${pos.y+0.5} ${pos.z+0.5}`)
-      event.player.tell("Distance: "+calcDistance(pos, retPos))
+      let dist = calcDistance(pos, retPos)
+      applySideEffects(event.server, '@e[tag=TheSplit.MidTeleport]', monStats, dist)
       event.server.runCommandSilent(`/tag @e[tag=TheSplit.MidTeleport] remove TheSplit.MidTeleport`)
       setBilocState(event.player, 1-toMon)
     })
