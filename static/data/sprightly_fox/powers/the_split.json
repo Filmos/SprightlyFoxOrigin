@@ -63,8 +63,14 @@
       "should_render": false
   	}
   },
-  "Teleport": {
+  "TeleportTrigger": {
     "type": "origins:active_self",
+    "condition": {
+      "type": "origins:resource",
+      "resource": "sprightly_fox:the_split_Teleport",
+      "comparison": ">=",
+      "compare_to": 2000
+    },
     "entity_action": {
       "type": "origins:apply_effect",
       "effect": {
@@ -79,12 +85,38 @@
     "key": {
         "key": "key.origins.secondary_active"
     },
-    "cooldown": 24,
+    "cooldown": 30,
     "hud_render": {
-      "should_render": true,
+      "should_render": false,
       "sprite_location": "kubejs:textures/gui/resource_bar.png",
       "bar_index": 0
   	}
+  },
+  "Teleport": {
+    "type": "origins:resource",
+    "min": 0,
+    "max": 2000,
+    "start_value": 2000,
+    "hud_render": {
+      "should_render": true,
+      "sprite_location": "kubejs:textures/gui/resource_bar.png",
+      "bar_index": 0,
+      "condition": {
+        "type": "origins:resource",
+        "resource": "sprightly_fox:the_split_Teleport",
+        "comparison": "<",
+        "compare_to": 2000
+      }
+  	}
+  },
+  "TeleportRegen": {
+    "type": "origins:action_over_time",
+    "interval": 3,
+    "entity_action": {
+      "type": "origins:change_resource",
+      "resource": "sprightly_fox:the_split_Teleport",
+      "change": 1
+    }
   },
 	"name": "Bilocation",
 	"description": "By binding yourself to a monument you can teleport to and from it. Beware, low quality of the monument can result in unexpected consequences."

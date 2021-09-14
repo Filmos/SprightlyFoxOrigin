@@ -182,9 +182,11 @@ function setMonumentPos(player, type, value) {
 function getBilocState(player) {
   return loadNbtStorage(player)["sprightly_fox:the_split_BilocState"]
 }
-function setBilocState(player, state) {
+function setBilocState(player, state, extraData) {
+  extraData = extraData || {}
   let nbt = loadNbtStorage(player)
   nbt["sprightly_fox:the_split_BilocState"] = state
+  for(let e in extraData) nbt[e] = extraData[e]
   saveNbtStorage(player, nbt)
 }
 
@@ -224,7 +226,7 @@ function animateMonument(server, pos, animType) {
   }
 }
 function analyzeMonument(rootBlock, server, displayMissing) {
-  let combined = {}
+  let combined = {Stability: 5, Potential: 1}
   for(let pos of monument_shape) { 
     let block = rootBlock.offset(pos[0], pos[1], pos[2])
     
@@ -307,6 +309,7 @@ events.listen('player.tick', function (event) {
   if (event.player.server && event.player.ticksExisted % 10 === 0) {
     if(!event.player.getPotionEffects().isActive("minecraft:levitation")
     || event.server.runCommandSilent("origin has power "+event.player.name+" sprightly_fox:the_split")==0) return
+    if(loadNbtStorage(event.player)["sprightly_fox:the_split_Teleport"]<2000) return
     
     event.server.scheduleInTicks(7, event.server, callback => {
       let pos = getMonumentPos(event.player, "Mon"); if(!pos.d) return
@@ -332,12 +335,15 @@ events.listen('player.tick', function (event) {
         event.server.scheduleInTicks(3, event.server, callback => {animateMonument(event.server, pos, "fromMon")})
       }
       event.server.runCommandSilent("/effect clear "+event.player.name+" minecraft:levitation")
-      event.server.runCommandSilent(`/execute at ${event.player.name} run tag @e[distance=..0.5] add TheSplit.MidTeleport`)
+      event.server.runCommandSilent(`/execute at ${event.player.name} run tag @e[distance=..${Math.round((monStats.Spread||0)*10)/10}] add TheSplit.MidTeleport`)
       event.server.runCommandSilent(`/execute in ${pos.d} run tp @e[tag=TheSplit.MidTeleport] ${pos.x+0.5} ${pos.y+0.5} ${pos.z+0.5}`)
       let dist = calcDistance(pos, retPos)
       applySideEffects(event.server, '@e[tag=TheSplit.MidTeleport]', monStats, dist)
       event.server.runCommandSilent(`/tag @e[tag=TheSplit.MidTeleport] remove TheSplit.MidTeleport`)
-      setBilocState(event.player, 1-toMon)
+      
+      let cooldown = monStats.Stability*monStats.Stability*(Math.pow(2, monStats.Potential/10)-1)
+      cooldown = 1-cooldown/(dist+cooldown)
+      setBilocState(event.player, 1-toMon, {"sprightly_fox:sprightly": 0, "sprightly_fox:the_split_Teleport": Math.round((1-cooldown)*2000)})
     })
     
   }
