@@ -263,16 +263,30 @@ function calcDistance(startPos, endPos) {
   
   return dimCost + Math.sqrt((startPos.x-endPos.x)*(startPos.x-endPos.x)+(startPos.y-endPos.y)*(startPos.y-endPos.y)+(startPos.z-endPos.z)*(startPos.z-endPos.z))
 }
-function calcSeverity(safeP, p) {
+function calcSeverity(safeP, p, subP) {
+  subP = subP || 1
+  if(subP <= 0.01) return 0
+  if(subP != 1) p = p*(Math.log2(subP+0.32)/2+0.8)+safeP*(subP-1)*0.075
   if(p<safeP) return 0
   let rand = Math.random()
   return Math.max(0,-1.27247*Math.log2((-2436*safeP*(rand+0.392857))/(1150*safeP-2800*p))-1)
 }
 
-
+let monument_sideEffects = {
+  "Heat": (server, selector, severity) => {
+    if(severity > 0) server.runCommandSilent(`/execute at ${selector} run summon minecraft:lightning_bolt`)
+    if(severity <= 1) return
+    
+    let uid = Math.floor(Math.random()*100)
+    server.runCommandSilent(`/tag ${selector} add TheSplit.Overheated${uid}`)
+    for(let i=1;i<=Math.floor(severity);i++) server.scheduleInTicks(15*i, server, callback => {server.runCommandSilent(`/execute at @e[tag=TheSplit.Overheated${uid}] run summon minecraft:lightning_bolt`)})
+    server.scheduleInTicks(15*Math.floor(severity)+5, server, callback => {server.runCommandSilent(`/tag @e[tag=TheSplit.Overheated${uid}] remove TheSplit.Overheated${uid}`)})
+  },
+  "-Heat": (server, selector, severity) => {if(severity>0) server.runCommandSilent(`/effect give ${selector} mowziesmobs:frozen ${Math.floor(severity*5)}`)},
+  "Decay": (server, selector, severity) => {if(severity>0) server.runCommandSilent(`/effect give ${selector} minecraft:wither ${Math.floor(severity*5)} ${Math.floor(severity/2)}`)}
+}
 function applySideEffects(server, selector, stats, dist) {
   let severity = calcSeverity(stats.Stability*stats.Stability, dist)
-  server.runCommandSilent("/tell "+selector.replace("@e","@a")+" Severity: "+Math.round(severity*100)/100+" ["+Math.round(dist)+"/"+Math.round(stats.Stability*stats.Stability)+"]")
   if(severity > 0) server.runCommandSilent(`/effect give ${selector} minecraft:slowness ${4+Math.round(6*severity)} ${Math.floor(severity)}`)
   if(severity > 0) server.runCommandSilent(`/effect give ${selector} minecraft:weakness ${4+Math.round(6*severity)} ${Math.floor(severity/2)}`)
   if(severity > 1) server.runCommandSilent(`/effect give ${selector} minecraft:mining_fatigue ${4+Math.round(6*severity)} ${Math.floor((severity-1)/2)}`)
@@ -280,6 +294,12 @@ function applySideEffects(server, selector, stats, dist) {
   if(severity > 2) server.runCommandSilent(`/effect give ${selector} minecraft:hunger ${2+Math.round(4*severity)} ${Math.floor(severity)}`)
   if(severity > 3) server.runCommandSilent(`/effect give ${selector} minecraft:poison ${2+Math.round(4*severity)} ${Math.floor((severity-3)/2)}`)
   if(severity > 4) server.runCommandSilent(`/effect give ${selector} alexsmobs:ender_flu ${Math.max(20,Math.round(300-45*(severity-4)))} ${Math.floor(severity-4)}`)
+  
+  for(let spec in stats) {
+    if(spec == "Stability" || spec == "Potential" || spec == "missed") continue
+    if(stats[spec]>0 && monument_sideEffects[spec]) monument_sideEffects[spec](server, selector, calcSeverity(stats.Stability*stats.Stability, dist, stats[spec]))
+    if(stats[spec]<0 && monument_sideEffects["-"+spec]) monument_sideEffects["-"+spec](server, selector, calcSeverity(stats.Stability*stats.Stability, dist, -stats[spec]))
+  }
 }
 
 // Teleportation trigger
