@@ -118,6 +118,18 @@
       "change": 1
     }
   },
+  "TeleportIndicator": {
+    "type": "origins:model_color",
+    "red": 0.38,
+    "green": 0.29,
+    "blue": 0.7,
+    "condition": {
+      "type": "origins:resource",
+      "resource": "sprightly_fox:the_split_BilocState",
+      "comparison": "==",
+      "compare_to": 0
+    }
+  },
 	"name": "Bilocation",
 	"description": "By binding yourself to a monument you can teleport to and from it. Beware, low quality of the monument can result in unexpected consequences."
 }
