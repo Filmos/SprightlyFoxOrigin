@@ -287,7 +287,24 @@ events.listen('player.tick', function (event) {
       let monStats = analyzeMonument(block, event.server, false)
       
       let toMon = getBilocState(event.player)
-      if(toMon == 1) {
+      let dimStab = monStats["Dimensional Stability"] || 0
+      let randTp = (dimStab > 0
+        ?(Math.random()<0.1-dimStab/100)
+        :(Math.random()<1-0.9/(1-dimStab*0.8))
+      )
+      if(randTp) {
+        let randPlayer = event.server.getPlayers()
+        randPlayer = randPlayer[Math.floor(Math.random()*randPlayer.length)]
+        let retPos = {
+          x: randPlayer.x-0.5,
+          y: randPlayer.y-0.5,
+          z: randPlayer.z-0.5,
+          d: randPlayer.getWorld().getDimension()
+        }
+        if(toMon == 1) setMonumentPos(event.player, "Ret", retPos)
+        toMon = 1
+        event.server.scheduleInTicks(3, event.server, callback => {animateMonument(event.server, pos, "fromMon")})
+      } else if(toMon == 1) {
         let animPos = {x: pos.x, y: pos.y, z: pos.z, d: pos.d}
         event.server.scheduleInTicks(3, event.server, callback => {animateMonument(event.server, animPos, "toMon")})
         pos.y++
