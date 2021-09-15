@@ -355,6 +355,10 @@ events.listen('player.tick', function (event) {
       event.server.runCommandSilent(`/execute at ${event.player.name} run tag @e[distance=..${Math.round((monStats.Spread||0)*10)/10}] add TheSplit.MidTeleport`)
       event.server.runCommandSilent(`/execute in ${pos.d} run tp @e[tag=TheSplit.MidTeleport] ${pos.x+0.5} ${pos.y+0.5} ${pos.z+0.5}`)
       let dist = calcDistance(pos, retPos)
+      if(monStats.missing > 0) dist*=Math.pow(2, 2+monStats.missing/3)
+      let health = event.player.getHealth()/event.player.getMaxHealth()
+      if(health < 0.5) dist*=(3-health*4)
+      
       applySideEffects(event.server, '@e[tag=TheSplit.MidTeleport]', monStats, dist)
       event.server.runCommandSilent(`/tag @e[tag=TheSplit.MidTeleport] remove TheSplit.MidTeleport`)
       
