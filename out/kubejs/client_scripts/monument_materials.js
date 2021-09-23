@@ -25,7 +25,6 @@ let monument_materials = {
     'twilightforest:ironwood_block': {Stability: 1.6, Potential: 1.3},
     'tconstruct:tinkers_bronze_block': {Stability: 1.3, Potential: 1.3},
     'tconstruct:copper_block': {Stability: 1.3, Potential: 1.2},
-    'create:copper_block': {Stability: 1.3, Potential: 1.2},
     'create:brass_block': {Stability: 1.5, Potential: 1.1},
     'create:zinc_block': {Stability: 1.6, Potential: 1.0},
     'twilightforest:steeleaf_block': {Stability: 2.5, Potential: 1.2},

@@ -50,7 +50,7 @@
     "min_amplifier": 4
 〉
 
-〈toFileι../out/data/sprightly_fox/powers/sprightly_regeneration.jsonι{
+〈toFileι../out/kubejs/data/sprightly_fox/powers/sprightly_regeneration.jsonι{
   "type":"origins:multiple",
   "speed": {
     "type": "origins:resource",

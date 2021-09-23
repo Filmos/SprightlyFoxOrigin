@@ -23,7 +23,6 @@
     'twilightforest:ironwood_block': {Stability: 1.6, Potential: 1.3},
     'tconstruct:tinkers_bronze_block': {Stability: 1.3, Potential: 1.3},
     'tconstruct:copper_block': {Stability: 1.3, Potential: 1.2},
-    'create:copper_block': {Stability: 1.3, Potential: 1.2},
     'create:brass_block': {Stability: 1.5, Potential: 1.1},
     'create:zinc_block': {Stability: 1.6, Potential: 1.0},
     'twilightforest:steeleaf_block': {Stability: 2.5, Potential: 1.2},
@@ -71,9 +70,33 @@
     'byg:cryptic_campfire': {Stability: 0.6, Potential: 1.4, "Heat": 0.9}
   }
 }〉
+〈toSpaceιtextureOverrideι{
+  'tconstruct:queens_slime_block': "tconstruct:textures/block/storage/queens_slime.png",
+  'tconstruct:pig_iron_block': "tconstruct:textures/block/storage/pig_iron/top.png",
+  'tconstruct:slimesteel_block': "tconstruct:textures/block/storage/slimesteel.png",
+  'tconstruct:rose_gold_block': "tconstruct:textures/block/storage/rose_gold.png",
+  'tconstruct:tinkers_bronze_block': "tconstruct:textures/block/storage/tinkers_bronze.png",
+  'tconstruct:copper_block': "tconstruct:textures/block/storage/copper.png",
+  'tconstruct:hepatizon_block': "tconstruct:textures/block/storage/hepatizon.png",
+  'tconstruct:cobalt_block': "tconstruct:textures/block/storage/cobalt.png",
+  'tconstruct:manyullyn_block': "tconstruct:textures/block/storage/manyullyn.png",
+  'minecraft:ancient_debris': "minecraft:textures/block/ancient_debris_side.png"
+}〉
+
+〈jsonιjsonSourceι〈readSpaceιmaterials〉〉
+〈jsonιjsonTexturesι〈readSpaceιtextureOverride〉〉
+〈toFileι../out/config/overloaded_compressed_blocks/compressed.jsonι[
+〈forιiι〈varιjsonSource_Base.keys.length〉ι{
+  "baseRegistryName": "〈varᛍblockιjsonSource_Base.keys.〈varιi〉〉",
+  〈ifι"〈varιjsonTextures_〈varιblock〉〉"ι"texturePath": "〈varιjsonTextures_〈varιblock〉〉",〉
+  "depth": 9,
+  "hardnessMultiplier": 1.1,
+  "recipeEnabled": true
+}ι,〉
+]〉
 
 
-〈toFileι../out/client_scripts/monument_materials.jsι
+〈toFileι../out/kubejs/client_scripts/monument_materials.jsι
 let tooltip_cache = {}
 let monument_materials = 〈readSpaceιmaterials〉
 
@@ -108,7 +131,7 @@ onEvent('item.tooltip', tooltip => {
   })
 })〉
 
-〈toFileι../out/server_scripts/the_split.jsι
+〈toFileι../out/kubejs/server_scripts/the_split.jsι
 let monument_materials = 〈readSpaceιmaterials〉
 let monument_shape = [
   [ 0,  0,  0, "Top" , 1],
