@@ -95,6 +95,17 @@
 }ι,〉
 ]〉
 
+〈overSpaceιmaterialsι〈mergeJsonι〈readSpaceιmaterials〉ι{"Base": {
+〈forιmι〈varιjsonSource_Base.keys.length〉ι〈forιiι9ι
+  "〈replaceRegexι\w+:ιoverloaded_cb:compressed_ι〈varᛍblockιjsonSource_Base.keys.〈varιm〉〉_〈varιiι+1〉〉": 〈mergeJsonι〈eachJsonι〈varιjsonSource_Base.〈varιblock〉〉ι
+*(1.5**〈varιiι+1〉)*10)/10ιMath.round(〉ι{
+  Stability: 〈evalιx=〈varιjsonSource_Base.〈varιblock〉.Stability〉; (x>0.4?(Math.round(((x-0.4)*(1.7**〈varιiι+1〉)+0.4)*10)/10):(Math.round((0.4-(0.4-x)*(0.8**〈varιiι+1〉))*10)/10))〉,
+  Potential: 〈evalιx=〈varιjsonSource_Base.〈varιblock〉.Potential〉; (x>1?(Math.round(((x-1)*(1.7**〈varιiι+1〉)+1)*10)/10):(Math.round((1-(1-x)*(0.9**〈varιiι+1〉))*10)/10))〉
+}〉ι,
+〉ι,
+〉
+}}〉〉
+
 
 〈toFileι../out/kubejs/client_scripts/monument_materials.jsι
 let tooltip_cache = {}
