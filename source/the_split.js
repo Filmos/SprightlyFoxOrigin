@@ -367,7 +367,7 @@ events.listen('player.tick', function (event) {
       if(randTp) {
         let randPlayer = event.server.getPlayers()
         randPlayer = randPlayer[Math.floor(Math.random()*randPlayer.length)]
-        let retPos = {
+        pos = {
           x: randPlayer.x-0.5,
           y: randPlayer.y-0.5,
           z: randPlayer.z-0.5,
@@ -379,7 +379,7 @@ events.listen('player.tick', function (event) {
       } else if(toMon == 1) {
         let animPos = {x: pos.x, y: pos.y, z: pos.z, d: pos.d}
         event.server.scheduleInTicks(3, event.server, callback => {animateMonument(event.server, animPos, "toMon")})
-        pos.y++
+        pos.y+=1.5
         setMonumentPos(event.player, "ret", retPos)
       } else {
         pos = getMonumentPos(event.player, "ret"); if(!pos.d) return
