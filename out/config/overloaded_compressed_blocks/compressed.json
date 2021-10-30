@@ -12,6 +12,18 @@
   "hardnessMultiplier": 1.1,
   "recipeEnabled": true
 },{
+  "baseRegistryName": "betterendforge:thallasium_block",
+  
+  "depth": 9,
+  "hardnessMultiplier": 1.1,
+  "recipeEnabled": true
+},{
+  "baseRegistryName": "betterendforge:terminite_block",
+  
+  "depth": 9,
+  "hardnessMultiplier": 1.1,
+  "recipeEnabled": true
+},{
   "baseRegistryName": "tconstruct:pig_iron_block",
   "texturePath": "tconstruct:textures/block/storage/pig_iron/top.png",
   "depth": 9,
@@ -48,7 +60,25 @@
   "hardnessMultiplier": 1.1,
   "recipeEnabled": true
 },{
+  "baseRegistryName": "betterendforge:aeternium_block",
+  
+  "depth": 9,
+  "hardnessMultiplier": 1.1,
+  "recipeEnabled": true
+},{
+  "baseRegistryName": "byg:anthracite_block",
+  
+  "depth": 9,
+  "hardnessMultiplier": 1.1,
+  "recipeEnabled": true
+},{
   "baseRegistryName": "minecraft:coal_block",
+  
+  "depth": 9,
+  "hardnessMultiplier": 1.1,
+  "recipeEnabled": true
+},{
+  "baseRegistryName": "byg:lignite_block",
   
   "depth": 9,
   "hardnessMultiplier": 1.1,
@@ -157,6 +187,18 @@
   "recipeEnabled": true
 },{
   "baseRegistryName": "twilightforest:carminite_block",
+  
+  "depth": 9,
+  "hardnessMultiplier": 1.1,
+  "recipeEnabled": true
+},{
+  "baseRegistryName": "betterendforge:ender_block",
+  
+  "depth": 9,
+  "hardnessMultiplier": 1.1,
+  "recipeEnabled": true
+},{
+  "baseRegistryName": "betterendforge:amber_block",
   
   "depth": 9,
   "hardnessMultiplier": 1.1,
