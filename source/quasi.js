@@ -112,15 +112,16 @@
 〉ι,
 〉
 }}〉〉
+〈jsonιjsonSourceι〈readSpaceιmaterials〉〉
 
 
 
 
 
 
-〈toFileι../out/scripts/quasi.zsι
-val _ = 〈varιjsonSource_Material〉;
-〉
+〈toFileι../out/scripts/research.zsι
+val quasi = 〈replaceRegexι:(\d+)(,|})ι:$1.0$2ι〈varιjsonSource_Material〉〉;
+〈readFileι../semi-static/research.zs〉〉
 
 〈toFileι../out/kubejs/client_scripts/monument_materials.jsι
 let monument_materials = 〈readSpaceιmaterials〉
